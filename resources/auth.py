@@ -3,7 +3,7 @@ from flask import request, jsonify, url_for, current_app, Blueprint, redirect
 from flask_restful import Resource
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from flask_mail import Message
-from models.users import User
+from models import User
 from extensions import db, mail
 
 
@@ -25,8 +25,8 @@ class Register(Resource):
         if not all([name, email, password, role, phone, location]):
             return {"message": "All fields (name, email, password, role, phone, location) are required."}, 400
 
-        if len(password) < 6:
-            return {"message": "Password must be at least 6 characters long."}, 400
+        if len(password) < 8:
+            return {"message": "Password must be at least 8 characters long."}, 400
 
         # --- Check if email already exists ---
         if User.query.filter_by(email=email).first():

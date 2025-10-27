@@ -9,10 +9,13 @@ flask = "*"
 flask-restful = "*"
 flask-jwt-extended = "*"
 flask-sqlalchemy = "*"
-flask-migrate = "*"
 werkzeug = "*"
 flask-cors = "*"
 flask-mail = "*"
+python-dotenv = "*"
+flask-migrate = "*"
+cloudinary = "*"
+faker = "*"
 
 [dev-packages]
 
