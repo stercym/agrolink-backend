@@ -19,8 +19,8 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships
-    products = db.relationship("Product", backref="farmer", lazy=True)
-    cart_items = db.relationship("Cart", backref="buyer", lazy=True)
+    products = db.relationship("Product", backref="farmer")
+    cart_items = db.relationship("Cart", backref="buyer")
 
     def to_dict(self):
         return {
@@ -52,7 +52,7 @@ class Product(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships
-    cart_items = db.relationship("Cart", backref="product", lazy=True)
+    cart_items = db.relationship("Cart", backref="product")
 
     def to_dict(self):
         return {

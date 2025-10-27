@@ -8,7 +8,7 @@ fake = Faker()
 
 def seed_data():
     with app.app_context():
-        print("🌱 Seeding database...")
+        print(" Seeding database...")
 
         # Clear existing data
         db.drop_all()
@@ -60,7 +60,7 @@ def seed_data():
         db.session.add_all(products)
         db.session.commit()
 
-        print("✅ Seeding complete!")
+        print("Seeding complete!")
 
 
 if __name__ == "__main__":
