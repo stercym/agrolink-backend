@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
-from app import app
-from models import db, User, Product
+from app import create_app
+from models import  User, Product
+from extensions import db
 from faker import Faker
 from random import choice, uniform, randint
 
 fake = Faker()
+app = create_app() 
 
 def seed_data():
     with app.app_context():
-        print(" Seeding database...")
+        print("🌱 Seeding database...")
 
-        # Clear existing data
+        # Drop and recreate all tables
         db.drop_all()
         db.create_all()
 
@@ -19,7 +21,7 @@ def seed_data():
             User(
                 name="Samuel",
                 email="samuel@example.com",
-                password_hash="password123",  # match your model
+                password_hash="password123",  # plaintext hash for testing
                 role="farmer",
                 phone=fake.phone_number(),
                 location=fake.city()
@@ -33,13 +35,11 @@ def seed_data():
                 location=fake.city()
             ),
         ]
-
         db.session.add_all(users)
         db.session.commit()
 
         # --- PRODUCTS ---
         farmers = [user for user in users if user.role == "farmer"]
-
         products = []
         for _ in range(10):
             farmer = choice(farmers)
@@ -60,8 +60,7 @@ def seed_data():
         db.session.add_all(products)
         db.session.commit()
 
-        print("Seeding complete!")
-
+        print("✅ Seeding complete!")
 
 if __name__ == "__main__":
     seed_data()
