@@ -18,10 +18,11 @@ def create_app():
     app.config.from_object(Config)
 
     # --- Initialize Extensions ---
-    CORS(app, origins=[
+    CORS(app, resources={r"/*": {"origins": [
     "http://localhost:5173",
     "https://agrolinkapp.netlify.app"
-    ], supports_credentials=True)
+    ]}}, supports_credentials=True)
+
 
     db.init_app(app)
     mail.init_app(app)
