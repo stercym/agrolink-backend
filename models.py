@@ -1,9 +1,8 @@
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import uuid
+from werkzeug.security import generate_password_hash, check_password_hash
+from extensions import db
 
-db = SQLAlchemy()
-
-# USER MODEL
 
 class User(db.Model):
     __tablename__ = "users"
@@ -12,27 +11,35 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), nullable=False)  
+    role = db.Column(db.String(20), nullable=False)  # buyer / farmer / delivery
     phone = db.Column(db.String(20))
     location = db.Column(db.String(255))
     is_verified = db.Column(db.Boolean, default=False)
+    verification_token = db.Column(db.String(100), unique=True, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationships
-    products = db.relationship("Product", backref="farmer")
-    cart_items = db.relationship("Cart", backref="buyer")
+    # --- Relationships ---
+    products = db.relationship("Product", backref="farmer", lazy=True)
+    cart_items = db.relationship("Cart", backref="buyer", lazy=True)
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "email": self.email,
-            "role": self.role,
-            "phone": self.phone,
-            "location": self.location,
-            "is_verified": self.is_verified,
-            "created_at": self.created_at.isoformat(),
-        }
+    # --- Password handling ---
+    def set_password(self, password):
+        """Hash and store a password."""
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        """Verify a plaintext password against the stored hash."""
+        return check_password_hash(self.password_hash, password)
+
+    # --- Email verification token ---
+    def generate_verification_token(self):
+        """Generate a unique email verification token."""
+        token = str(uuid.uuid4())
+        self.verification_token = token
+        return token
+
+    def __repr__(self):
+        return f"<User {self.email} ({self.role})>"
 
 
 # PRODUCT MODEL
