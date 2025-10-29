@@ -13,8 +13,8 @@ class Config:
 
     # --- Database Configuration ---
     SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL",
-        "postgresql://postgres:Rania@localhost:5432/agrolink"
+        "DATABASE_URL", "postgresql://postgres:Rania@localhost:5432/agrolink"
+
     ).replace("postgres://", "postgresql://")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -32,4 +32,5 @@ class Config:
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", "agrolinkplatform@gmail.com")
 
     # --- Frontend ---
-    FRONTEND_APP_URL = os.getenv("FRONTEND_APP_URL", "http://localhost:5173")
+    FRONTEND_APP_URL = os.getenv("FRONTEND_APP_URL", "https://agrolinkapp.netlify.app/")
+

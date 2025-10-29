@@ -6,6 +6,9 @@ from sqlalchemy import text
 
 from models import Role, RoleName, User, Product, Location
 from extensions import db
+from random import choice, uniform, randint
+
+
 
 app = create_app() 
 

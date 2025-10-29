@@ -18,6 +18,7 @@ cloudinary = "*"
 faker = "*"
 flask-swagger-ui = "*"
 
+
 [dev-packages]
 
 [requires]

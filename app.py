@@ -79,7 +79,12 @@ def create_app():
     app.config.from_object(Config)
 
     # --- Initialize Extensions ---
-    CORS(app, origins=["*"], supports_credentials=True)
+    CORS(app, resources={r"/*": {"origins": [
+    "http://localhost:5173",
+    "https://agrolinkapp.netlify.app"
+    ]}}, supports_credentials=True)
+
+
     db.init_app(app)
     mail.init_app(app)
     jwt = JWTManager(app)
@@ -124,7 +129,7 @@ def create_app():
     # --- LOCATION ROUTES ---
     app.register_blueprint(locations_bp, url_prefix="/api")
 
-    # --- BASIC ROUTES ---
+    # --- BASIC ROUTE ---
     @app.route("/")
     def home():
         return {"message": "Welcome to AgroLink API"}, 200
@@ -565,6 +570,38 @@ def create_app():
 
         return jsonify({"message": "Cart cleared successfully"}), 200
 
+    # --- USERS ROUTES ---
+    @app.route("/users", methods=["GET"])
+    def get_users():
+        """Fetch all users"""
+        users = User.query.all()
+        return jsonify([u.to_dict() for u in users]), 200
+
+    @app.route("/users/<int:id>", methods=["GET"])
+    def get_user(id):
+        """Fetch one user by ID"""
+        user = User.query.get_or_404(id)
+        return jsonify(user.to_dict()), 200
+
+    @app.route("/users/<int:id>", methods=["PATCH"])
+    def update_user(id):
+        """Update user details"""
+        user = User.query.get_or_404(id)
+        data = request.get_json()
+        for field in ["username", "email"]:
+            if field in data:
+                setattr(user, field, data[field])
+        db.session.commit()
+        return jsonify(user.to_dict()), 200
+
+    @app.route("/users/<int:id>", methods=["DELETE"])
+    def delete_user(id):
+        """Delete user"""
+        user = User.query.get_or_404(id)
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": "User deleted"}), 200
+
     return app
 
 
@@ -577,4 +614,8 @@ if __name__ == "__main__":
     
     with app.app_context():
         db.create_all()
+
     socketio.run(app, debug=True, port=5000)
+    
+
+
