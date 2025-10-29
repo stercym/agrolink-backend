@@ -1,0 +1,50 @@
+name: Deploy Agrolink-backend to Render
+
+on:
+  push:
+    branches: ["main", "development"]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm test -- --ci
+
+      - name: Deploy Agrolink-backend to Render
+        if: success()
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+
+      - name: Extract Jira Key from commit
+        id: jirakey
+        run: |
+          KEY=$(git log -1 --pretty=%B | grep -oE '[A-Z]+-[0-9]+' | head -1 || true)
+          echo "key=$KEY" >> $GITHUB_OUTPUT
+
+      - name: Transition Jira issue to 'Done'
+        if: steps.jirakey.outputs.key != ''
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          echo "Transitioning issue ${{ steps.jirakey.outputs.key }} to Done..."
+          curl -v \
+            -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            --data '{"transition":{"id":"31"}}' \
+            "${JIRA_BASE_URL}/rest/api/3/issue/${{ steps.jirakey.outputs.KEY }}/transitions"
