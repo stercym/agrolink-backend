@@ -604,11 +604,12 @@ def create_app():
 
     return app
 
+# create the app instance
+app = create_app()
 
 # --- Run the application ---
 if __name__ == "__main__":
-    app = create_app()
-    
+
     # Import socket events after app creation to avoid circular imports
     import socket_events
     
