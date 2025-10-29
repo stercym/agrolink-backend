@@ -14,7 +14,7 @@ class Config:
     # --- Database Configuration ---
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "DATABASE_URL",
-        "sqlite:///" + os.path.join(basedir, "app.db")
+        "postgresql://postgres:Rania@localhost:5432/agrolink"
     ).replace("postgres://", "postgresql://")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -27,7 +27,9 @@ class Config:
     MAIL_SERVER = "smtp-relay.brevo.com"
     MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = os.getenv("MAIL_USERNAME", "99ed44001@smtp-brevo.com")
-    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "A8P0Exg14QFbGtLS")
+    MAIL_USERNAME = os.getenv("MAIL_USERNAME")
+    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", "agrolinkplatform@gmail.com")
 
+    # --- Frontend ---
+    FRONTEND_APP_URL = os.getenv("FRONTEND_APP_URL", "http://localhost:5173")

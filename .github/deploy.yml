@@ -26,7 +26,7 @@ jobs:
       - name: Deploy Agrolink-backend to Render
         if: success()
         run: |
-          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
 
       - name: Extract Jira Key from commit
         id: jirakey
