@@ -15,3 +15,4 @@ sendgrid
 requests
 flask-swagger-ui
 gunicorn
+eventlet
