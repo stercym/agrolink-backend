@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 psycopg2-binary = "*"
 flask = "*"
-flask-restful = "*"
 flask-jwt-extended = "*"
 flask-sqlalchemy = "*"
 werkzeug = "*"
@@ -17,7 +16,7 @@ flask-migrate = "*"
 cloudinary = "*"
 faker = "*"
 flask-swagger-ui = "*"
-
+flask-restful = "*"
 
 [dev-packages]
 

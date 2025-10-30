@@ -19,6 +19,7 @@ import cloudinary
 import cloudinary.uploader
 from cloudinary.exceptions import Error as CloudinaryError
 from flask_swagger_ui import get_swaggerui_blueprint
+from models import *
 
 
 def _extract_request_data() -> dict:
@@ -79,10 +80,18 @@ def create_app():
     app.config.from_object(Config)
 
     # --- Initialize Extensions ---
-    CORS(app, resources={r"/*": {"origins": [
-    "http://localhost:5173",
-    "https://agrolinkapp.netlify.app"
-    ]}}, supports_credentials=True)
+    CORS(app,
+     resources={r"/*": {
+         "origins": [
+             "http://localhost:5173",
+             "http://127.0.0.1:5173",
+             "https://agrolinkapp.netlify.app"
+         ],
+         "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
+         "expose_headers": ["Content-Type", "Authorization"],
+         "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+     }},
+     supports_credentials=True)
 
 
     db.init_app(app)
@@ -617,6 +626,8 @@ if __name__ == "__main__":
         db.create_all()
 
     socketio.run(app, debug=True, port=5000)
+
+
     
 
 
