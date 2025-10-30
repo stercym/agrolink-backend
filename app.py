@@ -9,7 +9,7 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_cors import CORS
 from config import Config
-from extensions import db, mail, socketio
+from extensions import db, socketio
 from resources.auth import Register, Login, Profile, ResendVerification, verify_bp
 from resources.orders import orders_bp
 from resources.locations import locations_bp
@@ -95,7 +95,6 @@ def create_app():
 
 
     db.init_app(app)
-    mail.init_app(app)
     jwt = JWTManager(app)
     migrate = Migrate(app, db)
     api = Api(app)

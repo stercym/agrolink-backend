@@ -2,10 +2,10 @@ import uuid
 from flask import request, jsonify, url_for, current_app, Blueprint, redirect
 from flask_restful import Resource
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from flask_mail import Message
 from models import User, Role, RoleName, EmailVerificationToken
-from extensions import db, mail
+from extensions import db
 from utils.auth import any_authenticated_user
+from utils.email_service import send_email
 from datetime import datetime, timedelta, timezone
 
 
@@ -72,24 +72,25 @@ class Register(Resource):
         verify_url = url_for("verify_bp.verify_email", token=token, _external=True)
 
         # --- Send verification email ---
-        msg = Message(
-            subject="Verify Your Email - AgroLink",
-            recipients=[user.email],
-            body=f"""
-Hi {user.name},
-
-Welcome to AgroLink! Please verify your email by clicking the link below:
-
-{verify_url}
-
-If you didn’t register, please ignore this message.
-""",
+        text_body = (
+            f"Hi {user.name},\n\n"
+            "Welcome to AgroLink! Please verify your email by clicking the link below:\n\n"
+            f"{verify_url}\n\n"
+            "If you didn’t register, please ignore this message."
+        )
+        html_body = (
+            f"<p>Hi {user.name},</p>"
+            "<p>Welcome to AgroLink! Please verify your email by clicking the link below:</p>"
+            f"<p><a href=\"{verify_url}\">Verify my email</a></p>"
+            "<p>If you didn’t register, please ignore this message.</p>"
         )
 
-        try:
-            mail.send(msg)
-        except Exception as e:
-            current_app.logger.error(f"Email sending failed: {e}")
+        if not send_email(
+            subject="Verify Your Email - AgroLink",
+            recipients={"email": user.email, "name": user.name},
+            text_body=text_body,
+            html_body=html_body,
+        ):
             return {
                 "message": "User registered successfully, but verification email could not be sent. Please contact support."
             }, 201
@@ -98,9 +99,7 @@ If you didn’t register, please ignore this message.
             "message": "User registered successfully. Please check your email to verify your account."
         }, 201
     
-# =====================================================
 # VERIFY EMAIL
-# =====================================================
 verify_bp = Blueprint("verify_bp", __name__)
 
 @verify_bp.route("/verify/<token>", methods=["GET"])
@@ -148,40 +147,48 @@ class ResendVerification(Resource):
         if user.is_verified:
             return {"message": "Your email is already verified. You can log in."}, 400
         
-        #delete old verification token if it exists
+        # Delete old verification token if it exists
         existing_token = EmailVerificationToken.query.filter_by(user_id=user.id).first()
         if existing_token:
             db.session.delete(existing_token)
             db.session.commit()
 
-        # Generate a new verification token
-        user.verification_token = str(uuid.uuid4())
+        # Create a new verification token
+        token = str(uuid.uuid4())
         expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
-        db.session.add(EmailVerificationToken)
-        db.session.commit()
-
-        verify_url = url_for("verify_bp.verify_email", token=user.verification_token, _external=True)
-
-        msg = Message(
-            subject="Resend Email Verification - AgroLink",
-            recipients=[user.email],
-            body=f"""
-Hi {user.name},
-
-You requested to resend your Agrolink email verification link.
-
-Please verify your email by clicking the link below:
-
-{verify_url}
-
-If you didn’t request this, you can safely ignore this message.
-""",
+        
+        verification_token = EmailVerificationToken(
+            user_id=user.id,
+            token=token,
+            expires_at=expires_at,
         )
 
-        try:
-            mail.send(msg)
-        except Exception as e:
-            current_app.logger.error(f"Failed to resend email: {e}")
+        db.session.add(verification_token)
+        db.session.commit()
+
+        verify_url = url_for("verify_bp.verify_email", token=token, _external=True)
+
+        text_body = (
+            f"Hi {user.name},\n\n"
+            "You requested to resend your email verification link.\n\n"
+            "Please verify your email by clicking the link below:\n\n"
+            f"{verify_url}\n\n"
+            "If you didn’t request this, you can safely ignore this message."
+        )
+        html_body = (
+            f"<p>Hi {user.name},</p>"
+            "<p>You requested to resend your email verification link.</p>"
+            "<p>Please verify your email by clicking the link below:</p>"
+            f"<p><a href=\"{verify_url}\">Verify my email</a></p>"
+            "<p>If you didn’t request this, you can safely ignore this message.</p>"
+        )
+
+        if not send_email(
+            subject="Resend Email Verification - AgroLink",
+            recipients={"email": user.email, "name": user.name},
+            text_body=text_body,
+            html_body=html_body,
+        ):
             return {"message": "Failed to resend verification email. Please try again later."}, 500
 
         return {"message": "Verification email resent successfully. Please check your inbox."}, 200

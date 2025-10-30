@@ -23,13 +23,11 @@ class Config:
     CLOUD_API_KEY = os.getenv("CLOUD_API_KEY")
     CLOUD_API_SECRET = os.getenv("CLOUD_API_SECRET")
 
-    # --- Mail Configuration (Brevo SMTP) ---
-    MAIL_SERVER = "smtp-relay.brevo.com"
-    MAIL_PORT = 587
-    MAIL_USE_TLS = True
-    MAIL_USERNAME = os.getenv("MAIL_USERNAME")
-    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
-    MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", "agrolinkplatform@gmail.com")
+    MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", "mutukustercy93@gmail.com")
+    MAIL_DEFAULT_SENDER_NAME = os.getenv("MAIL_DEFAULT_SENDER_NAME", "AgroLink")
+
+    # --- Email API (Brevo) ---
+    BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 
     # --- Frontend ---
     FRONTEND_APP_URL = os.getenv("FRONTEND_APP_URL", "http://localhost:5173")

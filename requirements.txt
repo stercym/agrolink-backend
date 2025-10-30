@@ -16,3 +16,4 @@ requests
 flask-swagger-ui
 gunicorn
 eventlet
+sib-api-v3-sdk

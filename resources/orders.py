@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, url_for, current_app
 from flask_restful import Api, Resource
 from models import *
-from extensions import db, mail
+from extensions import db
 from utils.auth import buyer_required, farmer_required, delivery_agent_required, admin_required, any_authenticated_user
 from utils.delivery import estimate_delivery_cost
 from typing import Any, Dict, List, Optional
@@ -12,7 +12,7 @@ from utils.mpesa import (
     callback_successful,
 )
 from datetime import datetime, timezone
-from flask_mail import Message
+from utils.email_service import send_email
 
 # Create blueprint for orders
 orders_bp = Blueprint('orders', __name__)
@@ -172,16 +172,13 @@ def _calculate_agent_summary() -> List[Dict[str, Any]]:
 
 
 def _send_notification(subject: str, recipients: List[str], body: str) -> None:
-    valid_recipients = [email for email in recipients if email]
-    if not valid_recipients:
+    payload = [{"email": email} for email in recipients if email]
+    if not payload:
         return
 
-    try:
-        message = Message(subject=subject, recipients=valid_recipients, body=body)
-        mail.send(message)
-    except Exception as exc:  # pragma: no cover - email failures should not break core flow
-        current_app.logger.error("Failed to send notification '%s': %s", subject, exc)
-
+    html_body = "<br>".join(body.splitlines())
+    if not send_email(subject=subject, recipients=payload, text_body=body, html_body=html_body):
+        current_app.logger.error("Failed to send notification '%s' via Brevo", subject)
 
 def _format_order_lines(order: Order) -> str:
     if not order.items:

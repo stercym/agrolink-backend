@@ -17,6 +17,7 @@ cloudinary = "*"
 faker = "*"
 flask-swagger-ui = "*"
 flask-restful = "*"
+twilio = "*"
 
 [dev-packages]
 
