@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from extensions import db
 from models import Cart, CartItem, Product
-from utils.auth import buyer_required
+from utils.auth import any_authenticated_user
 
 
 cart_bp = Blueprint("cart", __name__)
@@ -55,7 +55,7 @@ def _serialise_product(product):
         payload = dict(product)
     else:
         payload = product.to_dict()
-        
+
     primary = None
 
     if payload.get("images"):
@@ -69,7 +69,7 @@ def _serialise_product(product):
 
 
 class CartResource(Resource):
-    @buyer_required
+    @any_authenticated_user
     def get(self, current_user):
         cart = Cart.query.filter_by(buyer_id=current_user.id).first()
 
@@ -85,7 +85,7 @@ class CartResource(Resource):
 
         return {"cart": payload}, 200
 
-    @buyer_required
+    @any_authenticated_user
     def put(self, current_user):
         data = request.get_json(silent=True) or {}
         raw_items = data.get("items", [])

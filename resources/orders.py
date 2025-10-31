@@ -292,7 +292,7 @@ STATUS_TO_ASSIGNMENT_STATUS = {
 
 
 class OrderList(Resource):
-    @buyer_required
+    @any_authenticated_user
     def post(self, current_user):
         """Create a new order from cart items"""
         data = request.get_json()
