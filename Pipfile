@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+psycopg2-binary = "*"
+flask = "*"
+flask-jwt-extended = "*"
+flask-sqlalchemy = "*"
+werkzeug = "*"
+flask-cors = "*"
+flask-mail = "*"
+python-dotenv = "*"
+flask-migrate = "*"
+cloudinary = "*"
+faker = "*"
+flask-swagger-ui = "*"
+flask-restful = "*"
+twilio = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"
