@@ -48,7 +48,14 @@ def _normalise_items(raw_items):
 
 
 def _serialise_product(product):
-    payload = product.to_dict()
+    if product is None:
+        return None
+
+    if isinstance(product, dict):
+        payload = dict(product)
+    else:
+        payload = product.to_dict()
+        
     primary = None
 
     if payload.get("images"):
